@@ -1,6 +1,7 @@
 #include "mips32.h"
 #include "timer.h"
 #include "BusMatrix.h"
+#include "InputCapture.h"
 
 int sc_main(int argc, char *argv[]) {
     sc_clock clk("clk", sc_time(10, SC_NS));
@@ -47,8 +48,23 @@ int sc_main(int argc, char *argv[]) {
     timer1.wr_i(wr_timer1);
     timer1.rd_i(rd_timer1);
 
+    sc_signal<int> timer2_data;
+    Timer timer2("timer2", 0);
+    timer2.clk_i(clk);
+    timer2.addr_bi(addr);
+    timer2.data_bi(data_mips32_bo);
+    timer2.data_bo(timer2_data);
+    timer2.wr_i(wr_timer2);
+    timer2.rd_i(rd_timer2);
 
-    // Timer timer2("timer2", 0xC);
+    sc_clock signal("signal", sc_time(50, SC_NS), 0.33);
+    InputCapture capture("InputCapture");
+    capture.data_i(signal);
+    capture.clk_i(clk);
+    capture.addr_bi(addr);
+    capture.data_bi(data_mips32_bo);
+    capture.wr_i(wr_ic);
+    capture.rd_i(rd_ic);
 
 
 
