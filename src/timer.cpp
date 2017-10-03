@@ -4,6 +4,7 @@
 
 #include "timer.h"
 
+
 Timer::Timer(sc_module_name nm, int offset)
     : sc_module(nm),
       clk_i("clk_i"),
@@ -17,7 +18,7 @@ Timer::Timer(sc_module_name nm, int offset)
     data_bo.initialize(0);
 
     SC_METHOD(bus_read);
-    sensitive << clk_i.pos();
+    sensitive << clk_i.pos() << wr_i.pos();
 
     SC_METHOD(tick);
     sensitive << clk_i.pos();
@@ -53,7 +54,7 @@ void Timer::tick() {
 
 void Timer::bus_read()
 {
-    if (!rd_i.read()) {
+    if (!wr_i.read()) {
         return;
     }
 

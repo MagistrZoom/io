@@ -1,5 +1,4 @@
 #include "mips32.h"
-#include "mem.h"
 #include "timer.h"
 #include "BusMatrix.h"
 
@@ -32,18 +31,19 @@ int sc_main(int argc, char *argv[]) {
                     rd_timer2,
                     rd_ic;
 
-    bus.wr_timer1_o(rd_timer1);
+    bus.wr_timer1_o(wr_timer1);
     bus.wr_timer2_o(wr_timer2);
     bus.wr_ic_o(wr_ic);
-    bus.rd_timer1_o(wr_timer1);
+    bus.rd_timer1_o(rd_timer1);
     bus.rd_timer2_o(rd_timer2);
     bus.rd_ic_o(rd_ic);
 
+    sc_signal<int> timer1_data;
     Timer timer1("timer1", 0);
     timer1.clk_i(clk);
     timer1.addr_bi(addr);
     timer1.data_bi(data_mips32_bo);
-    timer1.data_bo(data_mips32_bi);
+    timer1.data_bo(timer1_data);
     timer1.wr_i(wr_timer1);
     timer1.rd_i(rd_timer1);
 

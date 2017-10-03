@@ -24,9 +24,9 @@ SC_MODULE(Timer) {
 
     ~Timer() = default;
 private:
-    int m_offset;
-    int m_tmr;
-    int m_tval;
+    int m_offset = 0;
+    int m_tmr = 0;
+    int m_tval = 0;
     int m_tconf = TimerStopped;
 
     void bus_read();
