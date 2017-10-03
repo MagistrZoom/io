@@ -1,4 +1,5 @@
 #include "mips32.h"
+#include "timer.h"
 
 using namespace std;
 
@@ -17,7 +18,10 @@ MIPS32::MIPS32(sc_module_name nm)
     rd_o.initialize(0);
     
     SC_CTHREAD(mainThread, clk_i.pos());
-    
+
+
+    SC_METHOD(timer);
+    sensitive << clk_i.pos();
 }
 
 MIPS32::~MIPS32()
@@ -27,10 +31,21 @@ MIPS32::~MIPS32()
 
 void MIPS32::mainThread()
 {
-    bus_write(0x4, 5);
+    // Configure timer
 
-    sc_stop();
+    bus_write(0x0, 25);
+    bus_write(0x8, Timer::TimerInc);
+}
 
+void MIPS32::timer()
+{
+    static bool passed = false;
+    if (data_bi.read() == 13) {
+        if (passed) {
+            sc_stop();
+        }
+        passed = true;
+    }
 }
 
 int MIPS32::bus_read(int addr)

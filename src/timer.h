@@ -6,6 +6,10 @@
 #include "systemc.h"
 
 SC_MODULE(Timer) {
+    enum TimerSettings {
+        TimerInc = 0x1,
+        TimerStopped = 0x2
+    };
 
     sc_in<bool> clk_i;
     sc_in<int> addr_bi;
@@ -23,7 +27,7 @@ private:
     int m_offset;
     int m_tmr;
     int m_tval;
-    int m_tconf;
+    int m_tconf = TimerStopped;
 
     void bus_read();
 

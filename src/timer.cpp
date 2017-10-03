@@ -4,9 +4,6 @@
 
 #include "timer.h"
 
-constexpr int TIMER_INC = 0x0;
-constexpr int TIMER_STOPPED = 0x1;
-
 Timer::Timer(sc_module_name nm, int offset)
     : sc_module(nm),
       clk_i("clk_i"),
@@ -27,11 +24,11 @@ Timer::Timer(sc_module_name nm, int offset)
 }
 
 void Timer::tick() {
-    if (m_tconf & TIMER_STOPPED) {
+    if (m_tconf & TimerStopped) {
         return;
     }
 
-    if (m_tconf & TIMER_INC)
+    if (m_tconf & TimerInc)
     {
         if (m_tval < m_tmr)
         {
