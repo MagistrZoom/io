@@ -12,21 +12,30 @@ InputCapture::InputCapture(sc_module_name nm)
       data_bi("data_bi"),
       wr_i("wr_i"),
       rd_i("rd_i"),
+      data_bo("data_bo"),
       data_i("data_i"),
+//    prescaler_data_i("prescaler_data_i"),
+//    prescaler_data_o("prescaler_data_o"),
+//    detector_data_i("detector_data_i"),
+      detector_data_o("detector_data_o"),
       m_prescaler("Prescaler", m_icconf),
-      m_detector("EdgeDetector", m_icconf)
+      m_detector("EdgeDetector", m_icconf, m_prescaler.get_notifier())
 {
-    m_prescaler.data_i(prescaler_data_i);
-    m_prescaler.data_o(prescaler_data_o);
 
-    m_detector.data_i(prescaler_data_o);
+    m_prescaler.clk_i(clk_i);
+    m_prescaler.data_i(data_i);
+    m_prescaler.data_o(prescaler_detector);
+    m_detector.clk_i(clk_i);
+    m_detector.data_i(prescaler_detector);
     m_detector.data_o(detector_data_o);
+
 
     SC_METHOD(bus_read);
     sensitive << clk_i.pos() << rd_i.pos();
 
     SC_METHOD(bus_write);
     sensitive << clk_i.pos() << wr_i.pos();
+
 }
 
 void InputCapture::bus_read()

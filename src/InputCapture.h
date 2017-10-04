@@ -39,10 +39,11 @@ SC_MODULE(InputCapture)
     sc_in<int> data_bi;
     sc_in<bool> wr_i;
     sc_in<bool> rd_i;
-    //sc_out<int> data_bo;
+    sc_out<int> data_bo;
 
     sc_in<bool> data_i;
 
+    SC_HAS_PROCESS(InputCapture);
 
     InputCapture(sc_module_name nm);
 
@@ -51,16 +52,17 @@ SC_MODULE(InputCapture)
 private:
     int m_icconf = 0;
 
-    sc_in<bool> prescaler_data_i;
-    sc_out<bool> prescaler_data_o;
+public:
     sc_out<bool> detector_data_o;
+private:
 
-    SC_HAS_PROCESS(InputCapture);
+    sc_signal<bool> prescaler_detector;
 
     Prescaler m_prescaler;
     EdgeDetector m_detector;
 
     void bus_read();
     void bus_write();
+
 };
 

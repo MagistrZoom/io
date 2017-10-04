@@ -63,10 +63,12 @@ int sc_main(int argc, char *argv[]) {
     capture.clk_i(clk);
     capture.addr_bi(addr);
     capture.data_bi(data_mips32_bo);
+    capture.data_bo(data_mips32_bi);
     capture.wr_i(wr_ic);
     capture.rd_i(rd_ic);
 
-
+    sc_signal<bool> capture_bo;
+    capture.detector_data_o(capture_bo);
 
     sc_trace_file *wf = sc_create_vcd_trace_file("wave");
     wf->set_time_unit(1, SC_NS);
@@ -74,8 +76,6 @@ int sc_main(int argc, char *argv[]) {
     sc_trace(wf, addr, "addr");
     sc_trace(wf, wr, "wr");
     sc_trace(wf, rd, "rd");
-    sc_trace(wf, wr_timer1, "wr_timer1");
-    sc_trace(wf, rd_timer1, "rd_timer1");
     sc_trace(wf, data_mips32_bi, "data_mips32_bi");
     sc_trace(wf, data_mips32_bo, "data_mips32_bo");
     sc_start();

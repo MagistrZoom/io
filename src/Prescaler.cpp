@@ -12,4 +12,18 @@ Prescaler::Prescaler(sc_module_name nm, int & inputCaptureConf)
       data_o("data_o"),
       m_icconf(inputCaptureConf)
 {
+    SC_METHOD(process);
+    sensitive << clk_i.pos() << data_i.pos();
+}
+
+sc_event &
+Prescaler::get_notifier()
+{
+    return m_event;
+}
+
+void
+Prescaler::process()
+{
+
 }

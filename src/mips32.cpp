@@ -4,13 +4,13 @@
 using namespace std;
 
 MIPS32::MIPS32(sc_module_name nm)
-    :sc_module(nm),
-    clk_i("clk_i"),
-    addr_bo("addr_bo"),
-    data_bi("data_bi"),
-    data_bo("data_bo"),
-    wr_o("wr_o"),
-    rd_o("rd_o")
+    : sc_module(nm),
+      clk_i("clk_i"),
+      addr_bo("addr_bo"),
+      data_bi("data_bi"),
+      data_bo("data_bo"),
+      wr_o("wr_o"),
+      rd_o("rd_o")
 {
     addr_bo.initialize(0);
     data_bo.initialize(0);

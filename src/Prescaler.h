@@ -19,7 +19,13 @@ SC_MODULE(Prescaler)
 
     ~Prescaler() = default;
 
+    sc_event & get_notifier();
+
 private:
     int & m_icconf;
+
+    sc_event m_event;
+
+    void process();
 };
 

@@ -15,11 +15,17 @@ SC_MODULE(EdgeDetector)
 
     SC_HAS_PROCESS(EdgeDetector);
 
-    EdgeDetector(sc_module_name nm, int & inputCaptureConfig);
+    EdgeDetector(sc_module_name nm, int & inputCaptureConfig, sc_event & prescaler_event);
 
     ~EdgeDetector() = default;
 
+    sc_event & get_notifier();
 private:
     int & m_icconf;
+
+    sc_event m_event;
+    sc_event & m_prescaler_event;
+
+    void process();
 };
 
