@@ -5,9 +5,11 @@
 #pragma once
 
 #include "systemc.h"
+#include "Settings.h"
+#include "IDataFlowBlock.h"
 
 
-SC_MODULE(EdgeDetector)
+SC_MODULE(EdgeDetector), IDataFlowBlock
 {
     sc_in<bool> clk_i;
     sc_in<bool> data_i;
@@ -15,16 +17,23 @@ SC_MODULE(EdgeDetector)
 
     SC_HAS_PROCESS(EdgeDetector);
 
-    EdgeDetector(sc_module_name nm, int & inputCaptureConfig, sc_event & prescaler_event);
+    EdgeDetector(sc_module_name nm);
 
     ~EdgeDetector() = default;
 
-    sc_event & get_notifier();
-private:
-    int & m_icconf;
+    /* IDataFlowBlock */
+    void set_source(IDataFlowBlock * block) override;
+    void reset() override;
+    void reset_chain() override;
+    void enable() override;
+    void enable_chain() override;
 
-    sc_event m_event;
-    sc_event & m_prescaler_event;
+    void set_front(CaptureSettings front);
+private:
+    CaptureSettings m_front = CaptureSettingsStoreAtRisingFront;
+    bool m_disabled = true;
+
+    IDataFlowBlock * m_prev = nullptr;
 
     void process();
 };

@@ -5,8 +5,11 @@
 
 #include "systemc.h"
 
-SC_MODULE(Timer) {
-    enum TimerSettings {
+
+SC_MODULE(Timer)
+{
+    enum TimerSettings
+    {
         TimerInc = 0x1,
         TimerStopped = 0x2
     };

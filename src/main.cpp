@@ -3,7 +3,9 @@
 #include "BusMatrix.h"
 #include "InputCapture.h"
 
-int sc_main(int argc, char *argv[]) {
+
+int sc_main(int argc, char * argv[])
+{
     sc_clock clk("clk", sc_time(10, SC_NS));
     sc_signal<int> addr;
     sc_signal<int> data_mips32_bo;
@@ -26,11 +28,11 @@ int sc_main(int argc, char *argv[]) {
     bus.rd_i(rd);
 
     sc_signal<bool> wr_timer1,
-                    wr_timer2,
-                    wr_ic,
-                    rd_timer1,
-                    rd_timer2,
-                    rd_ic;
+        wr_timer2,
+        wr_ic,
+        rd_timer1,
+        rd_timer2,
+        rd_ic;
 
     bus.wr_timer1_o(wr_timer1);
     bus.wr_timer2_o(wr_timer2);
@@ -57,9 +59,11 @@ int sc_main(int argc, char *argv[]) {
     timer2.wr_i(wr_timer2);
     timer2.rd_i(rd_timer2);
 
-    sc_clock signal("signal", sc_time(50, SC_NS), 0.33);
+    sc_clock signal("signal", sc_time(60, SC_NS), 0.33);
+    sc_signal<bool> data_o;
     InputCapture capture("InputCapture");
     capture.data_i(signal);
+    capture.data_o(data_o);
     capture.clk_i(clk);
     capture.addr_bi(addr);
     capture.data_bi(data_mips32_bo);
@@ -67,21 +71,16 @@ int sc_main(int argc, char *argv[]) {
     capture.wr_i(wr_ic);
     capture.rd_i(rd_ic);
 
-    sc_signal<bool> capture_bo;
-    capture.detector_data_o(capture_bo);
-
-    sc_trace_file *wf = sc_create_vcd_trace_file("wave");
-    wf->set_time_unit(1, SC_NS);
+    sc_trace_file * wf = sc_create_vcd_trace_file("wave");
+    wf->set_time_unit(100, SC_PS);
     sc_trace(wf, clk, "clk");
-    sc_trace(wf, addr, "addr");
-    sc_trace(wf, wr, "wr");
-    sc_trace(wf, rd, "rd");
-    sc_trace(wf, data_mips32_bi, "data_mips32_bi");
-    sc_trace(wf, data_mips32_bo, "data_mips32_bo");
+    sc_trace(wf, capture.prescaler_detector, "prescaler");
+    sc_trace(wf, data_o, "edge");
+    sc_trace(wf, signal, "signal");
     sc_start();
 
     sc_close_vcd_trace_file(wf);
 
-    return (0);
+    return 0;
 
 }

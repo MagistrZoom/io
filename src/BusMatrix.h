@@ -7,6 +7,7 @@
 #include "systemc.h"
 #include <vector>
 
+
 SC_MODULE(BusMatrix)
 {
     sc_in<bool> clk_i;

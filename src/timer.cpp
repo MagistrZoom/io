@@ -24,19 +24,18 @@ Timer::Timer(sc_module_name nm, int offset)
     sensitive << clk_i.pos();
 }
 
-void Timer::tick() {
+
+void Timer::tick()
+{
     if (m_tconf & TimerStopped) {
         return;
     }
 
-    if (m_tconf & TimerInc)
-    {
-        if (m_tval < m_tmr)
-        {
+    if (m_tconf & TimerInc) {
+        if (m_tval < m_tmr) {
             m_tval++;
         }
-        else
-        {
+        else {
             m_tval = 0;
         }
     }
@@ -51,6 +50,7 @@ void Timer::tick() {
 
     data_bo.write(m_tval);
 }
+
 
 void Timer::bus_read()
 {

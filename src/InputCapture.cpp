@@ -14,21 +14,20 @@ InputCapture::InputCapture(sc_module_name nm)
       rd_i("rd_i"),
       data_bo("data_bo"),
       data_i("data_i"),
-//    prescaler_data_i("prescaler_data_i"),
-//    prescaler_data_o("prescaler_data_o"),
-//    detector_data_i("detector_data_i"),
-      detector_data_o("detector_data_o"),
-      m_prescaler("Prescaler", m_icconf),
-      m_detector("EdgeDetector", m_icconf, m_prescaler.get_notifier())
+      data_o("data_o"),
+      m_prescaler("Prescaler"),
+      m_detector("EdgeDetector")
+//m_fifo("FIFO", m_icconf, m_detector.get_notifier())
 {
-
     m_prescaler.clk_i(clk_i);
     m_prescaler.data_i(data_i);
     m_prescaler.data_o(prescaler_detector);
+
     m_detector.clk_i(clk_i);
     m_detector.data_i(prescaler_detector);
-    m_detector.data_o(detector_data_o);
+    m_detector.data_o(data_o);
 
+    m_detector.set_source(&m_prescaler);
 
     SC_METHOD(bus_read);
     sensitive << clk_i.pos() << rd_i.pos();
@@ -37,6 +36,7 @@ InputCapture::InputCapture(sc_module_name nm)
     sensitive << clk_i.pos() << wr_i.pos();
 
 }
+
 
 void InputCapture::bus_read()
 {
@@ -48,11 +48,52 @@ void InputCapture::bus_read()
     int addr = addr_bi.read();
 
     switch (addr) {
-        case 0x18:
+        case 0x18: {
             m_icconf = data;
-            break;
+            const auto settings = m_icconf & CaptureFieldsSettings;
+
+            int ratio = 1;
+            bool enable = true;
+            CaptureSettings front = CaptureSettingsStoreAtRisingFront;
+            //TODO: replace to FIFO
+            m_prescaler.reset_chain();
+            switch (settings) {
+                case CaptureSettingsDisabled:
+                    enable = false;
+                    break;
+                case CaptureSettingsStoreAtAnyFront:
+                    front = CaptureSettingsStoreAtAnyFront;
+                    break;
+                case CaptureSettingsStoreAtFadingFront:
+                    front = CaptureSettingsStoreAtFadingFront;
+                    break;
+                case CaptureSettingsStoreAtRisingFront:
+                    front = CaptureSettingsStoreAtRisingFront;
+                    break;
+                case CaptureSettingsStoreAtForthFadingFront:
+                    front = CaptureSettingsStoreAtFadingFront;
+                case CaptureSettingsStoreAtForthRisingFront:
+                    ratio = 4;
+                    break;
+                case CaptureSettingsStoreAtSixteenthFadingFront:
+                    front = CaptureSettingsStoreAtFadingFront;
+                case CaptureSettingsStoreAtSixteenthRisingFront:
+                    ratio = 16;
+                    break;
+            }
+
+            if (enable) {
+                m_detector.set_front(front);
+
+                m_prescaler.set_ratio(ratio);
+
+                //TODO: replace to FIFO
+                m_detector.enable_chain();
+            }
+        } break;
     }
 }
+
 
 void InputCapture::bus_write()
 {
@@ -61,7 +102,7 @@ void InputCapture::bus_write()
     }
 
     int addr = addr_bi.read();
-        switch (addr) {
+    switch (addr) {
         case 0x18:
             data_bo.write(m_icconf);
             break;

@@ -5,35 +5,14 @@
 #pragma once
 
 #include "systemc.h"
+#include "Settings.h"
 #include "Prescaler.h"
 #include "EdgeDetector.h"
+#include "FIFO.h"
+
 
 SC_MODULE(InputCapture)
 {
-    // Bitmask
-    enum CaptureFields {
-        CaptureFieldsSettings = 0x7, // ICM
-        CaptureFieldsBufferNonEmpty = 0x8, // ICBNE
-        CaptureFieldsBufferFilled = 0x10, // ICOV
-        CaptureFieldsBufferTimerMode = 0x48 // ICTMR
-    };
-    enum CaptureTimerSettings { // ICTMR
-        CaptureTimerSettingsDisabled = 0,
-        CaptureTimerSettingsTimerOne = 1,
-        CaptureTimerSettingsTimerTwo = 2,
-        CaptureTimerSettingsBoth     = 3
-    };
-    enum CaptureSettings { // ICM
-       CaptureSettingsDisabled = 0x0,
-       CaptureSettingsStoreAtAnyFront = 0x1,
-       CaptureSettingsStoreAtFadingFront = 0x2,
-       CaptureSettingsStoreAtRisingFront = 0x3,
-       CaptureSettingsStoreAtForthRisingFront = 0x4,
-       CaptureSettingsStoreAtSixteenthRisingFront = 0x5,
-       CaptureSettingsStoreAtForthFadingFront = 0x6,
-       CaptureSettingsStoreAtSixteenthFadingFront = 0x7,
-    };
-
     sc_in<bool> clk_i;
     sc_in<int> addr_bi;
     sc_in<int> data_bi;
@@ -42,6 +21,7 @@ SC_MODULE(InputCapture)
     sc_out<int> data_bo;
 
     sc_in<bool> data_i;
+    sc_out<bool> data_o;
 
     SC_HAS_PROCESS(InputCapture);
 
@@ -49,17 +29,14 @@ SC_MODULE(InputCapture)
 
     ~InputCapture() = default;
 
+    sc_signal<bool> prescaler_detector;
 private:
     int m_icconf = 0;
 
-public:
-    sc_out<bool> detector_data_o;
-private:
-
-    sc_signal<bool> prescaler_detector;
 
     Prescaler m_prescaler;
     EdgeDetector m_detector;
+    //FIFO m_fifo;
 
     void bus_read();
     void bus_write();

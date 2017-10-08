@@ -4,6 +4,7 @@
 
 #include "BusMatrix.h"
 
+
 BusMatrix::BusMatrix(sc_module_name nm)
     : clk_i("clk"),
       addr_bi("addr_bi"),
@@ -34,6 +35,7 @@ BusMatrix::BusMatrix(sc_module_name nm)
     sensitive << clk_i.pos() << wr_i.pos() << rd_i.pos();
 }
 
+
 void BusMatrix::select()
 {
     const auto read = rd_i.read();
@@ -56,6 +58,7 @@ void BusMatrix::select()
             break;
     }
 }
+
 
 void BusMatrix::set(int device, bool read, bool write)
 {
