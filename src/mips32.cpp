@@ -34,14 +34,14 @@ MIPS32::~MIPS32()
 
 void MIPS32::mainThread()
 {
-    bus_write(0x18, CaptureSettingsStoreAtSixteenthFadingFront);
+    bus_write(0x18, CaptureSettingsStoreAtForthRisingFront);
 }
 
 
 void MIPS32::timer()
 {
     static int i = 0;
-    if (i++ == 1000) {
+    if (i++ == 500000) {
         sc_stop();
     }
 }

@@ -30,15 +30,14 @@ SC_MODULE(Prescaler), IDataFlowBlock
     void set_ratio(int ratio);
 
 private:
-    int m_ratio = 1;
-    int m_count = 0;
-    int m_signal_current = 0;
-    int m_signal_future = 0;
     bool m_disabled = true;
 
-    IDataFlowBlock * m_prev = nullptr;
+    int m_ratio = 1;
+    int m_impulse = 0;
+    int m_clock = 0;
+    int m_delay = 0;
 
-    sc_event m_event;
+    IDataFlowBlock * m_prev = nullptr;
 
     void process();
 };

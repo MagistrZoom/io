@@ -24,31 +24,30 @@ void Prescaler::process()
 
     assert(m_ratio != 0);
 
-    if (data_o.read()) {
-        if (m_signal_current == 0) {
-            data_o.write(false);
+    if (data_i.posedge()) {
+        if (++m_impulse == m_ratio) {
+            data_o.write(true);
+            m_impulse = 0;
+            m_delay = m_clock;
+            m_clock = 0;
         }
         else {
-            m_signal_current--;
+            return;
         }
     }
 
     if (data_i.read()) {
-        m_signal_future++;
+        m_clock++;
     }
 
-    if (!data_i.posedge()) {
-        return;
+    if (m_delay != 0) {
+        m_delay--;
+    }
+    else {
+        data_o.write(false);
     }
 
-    if (++m_count == m_ratio) {
-        data_o.write(true);
-        m_count = 0;
-        m_signal_current = m_signal_future - 1;
-        m_signal_future = 0;
-    }
 }
-
 
 void Prescaler::set_source(IDataFlowBlock * block)
 {
@@ -58,9 +57,10 @@ void Prescaler::set_source(IDataFlowBlock * block)
 
 void Prescaler::reset()
 {
-    m_count = 0;
     m_disabled = true;
+    m_impulse = 0;
     m_ratio = 0;
+    m_clock = 0;
 }
 
 
