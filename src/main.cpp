@@ -86,6 +86,8 @@ int sc_main(int argc, char * argv[])
     sc_trace(wf, rd_timer2, "rd_timer2");
     sc_trace(wf, rd_ic, "rd_ic");
 
+    sc_trace(wf, wr, "mips_wr");
+    sc_trace(wf, rd, "mips_rd");
     sc_trace(wf, data_mips32_bo, "mips_data_bo");
     sc_trace(wf, data_mips32_bi, "mips_data_bi");
     sc_trace(wf, addr, "mips_addr_bo");

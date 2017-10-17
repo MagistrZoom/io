@@ -78,7 +78,7 @@ void MIPS32::mainThread()
                 break;
         }
 
-        if (c++ == 10) {
+        if (c++ == 50) {
             sc_stop();
         }
         wait();

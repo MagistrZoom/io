@@ -32,7 +32,7 @@ BusMatrix::BusMatrix(sc_module_name nm)
     m_list.emplace_back(rd_ic_o);
 
     SC_METHOD(select);
-    sensitive << clk_i.pos();
+    sensitive << wr_i.value_changed() << rd_i.value_changed();
 }
 
 

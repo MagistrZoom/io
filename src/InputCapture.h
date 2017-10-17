@@ -37,6 +37,8 @@ SC_MODULE(InputCapture)
 private:
     int m_icconf = 0;
 
+    bool m_read = false;
+
     EdgeDetector m_detector;
     Prescaler m_prescaler;
 

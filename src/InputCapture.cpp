@@ -59,8 +59,7 @@ void InputCapture::bus_read()
             int ratio = 1;
             bool enable = true;
             CaptureSettings front = CaptureSettingsStoreAtRisingFront;
-            //TODO: replace to FIFO
-            m_prescaler.reset_chain();
+            m_fifo.reset_chain();
             switch (settings) {
                 case CaptureSettingsDisabled:
                     enable = false;
@@ -114,6 +113,12 @@ void InputCapture::bus_read()
 
 void InputCapture::bus_write()
 {
+    //const auto rd = rd_i.read();
+    //if (!m_read || rd) {
+    //    m_read = rd;
+    //    return;
+    //}
+    //m_read = rd;
     if (!rd_i.read()) {
         return;
     }
@@ -127,10 +132,10 @@ void InputCapture::bus_write()
             m_icconf = (m_icconf & ~CaptureFieldsBufferOverflow) | ((!m_fifo.is_full()?~0:0) & CaptureFieldsBufferOverflow);
             data_bo.write(m_icconf);
             break;
-        case 0x1C:
+        case 0x1C: {
             const auto top = m_fifo.pop();
             data_bo.write(top);
-            break;
+        } break;
         default:
             abort();
             break;
