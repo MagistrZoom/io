@@ -1,28 +1,91 @@
 //
 // Created by izoomko on 10/8/17.
 //
+#include <stdlib.h>
 #include "systemc.h"
+#include "IDataFlowBlock.h"
+#include "Settings.h"
 
 
-SC_MODULE(FIFO)
+template<uint32_t SIZE>
+struct FIFO
+    : public IDataFlowBlock
 {
-    sc_in<bool> clk_i;
-    sc_in<bool> data_i;
-    sc_out<int> data_o;
-
-    SC_HAS_PROCESS(FIFO);
-
-    FIFO(sc_module_name nm, int & inputCaptureConfig, sc_event & detector_event);
-
+    FIFO() = default;
     ~FIFO() = default;
 
-    sc_event & get_notifier();
+    /* IDataFlowBlock */
+    void set_source(IDataFlowBlock * block) override
+    {
+        m_prev = block;
+    }
+
+    void reset() override
+    {
+        m_disabled = true;
+        m_size = 0;
+    }
+
+    void reset_chain() override
+    {
+        reset();
+        if (m_prev != nullptr) {
+            m_prev->reset_chain();
+        }
+    }
+
+    void enable() override
+    {
+        m_disabled = false;
+    }
+
+    void enable_chain() override
+    {
+        enable();
+        if (m_prev != nullptr) {
+            m_prev->enable_chain();
+        }
+    }
+
+    uint32_t pop()
+    {
+        if (is_empty()) {
+            return 0;
+        }
+        const auto value = m_fifo[0];
+        memcpy(m_fifo, &m_fifo[1], sizeof(value) * m_size);
+        m_size--;
+        return value;
+    }
+
+    void push(uint32_t value)
+    {
+        if (m_disabled || is_full()) {
+            return;
+        }
+
+        std::cout << sc_time_stamp() << " : Store m_fifo[" << m_size << "] = "
+                  << std::dec << value << std::hex
+                  << std::endl;
+        m_fifo[m_size++] = value;
+    }
+
+    bool is_empty()
+    {
+        return m_size == 0;
+    }
+
+    bool is_full()
+    {
+        return m_size == SIZE;
+    }
+
 private:
-    int & m_icconf;
+    bool m_disabled = true;
 
-    sc_event m_event;
-    sc_event & m_detector_event;
+    uint32_t m_fifo[SIZE] = {0};
+    uint32_t m_size = 0;
 
-    void process();
+    IDataFlowBlock * m_prev = nullptr;
 };
 

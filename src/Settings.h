@@ -9,15 +9,15 @@ enum CaptureFields
 {
     CaptureFieldsSettings = 0x7, // ICM
     CaptureFieldsBufferNonEmpty = 0x8, // ICBNE
-    CaptureFieldsBufferFilled = 0x10, // ICOV
-    CaptureFieldsBufferTimerMode = 0x48 // ICTMR
+    CaptureFieldsBufferOverflow = 0x10, // ICOV
+    CaptureFieldsBufferTimerMode = 0x60 // ICTMR
 };
 enum CaptureTimerSettings
 { // ICTMR
-    CaptureTimerSettingsDisabled = 0,
-    CaptureTimerSettingsTimerOne = 1,
-    CaptureTimerSettingsTimerTwo = 2,
-    CaptureTimerSettingsBoth = 3
+    CaptureTimerSettingsDisabled = 0x0,
+    CaptureTimerSettingsTimerOne = 0x20,
+    CaptureTimerSettingsTimerTwo = 0x40,
+    CaptureTimerSettingsBoth = 0x60
 };
 enum CaptureSettings
 { // ICM

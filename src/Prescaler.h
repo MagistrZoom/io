@@ -8,7 +8,7 @@
 #include "IDataFlowBlock.h"
 
 
-SC_MODULE(Prescaler), IDataFlowBlock
+SC_MODULE(Prescaler), public IDataFlowBlock
 {
     sc_in<bool> clk_i;
     sc_in<bool> data_i;
@@ -33,9 +33,7 @@ private:
     bool m_disabled = true;
 
     int m_ratio = 1;
-    int m_impulse = 0;
-    int m_clock = 0;
-    int m_delay = 0;
+    int m_impulses = 0;
 
     IDataFlowBlock * m_prev = nullptr;
 

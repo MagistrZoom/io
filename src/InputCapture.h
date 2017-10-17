@@ -20,8 +20,10 @@ SC_MODULE(InputCapture)
     sc_in<bool> rd_i;
     sc_out<int> data_bo;
 
+    sc_in<uint16_t> timer1_bi;
+    sc_in<uint16_t> timer2_bi;
+
     sc_in<bool> data_i;
-    sc_out<bool> data_o;
 
     SC_HAS_PROCESS(InputCapture);
 
@@ -29,17 +31,20 @@ SC_MODULE(InputCapture)
 
     ~InputCapture() = default;
 
-    sc_signal<bool> prescaler_detector;
+    sc_signal<bool> detector_prescaler;
+    sc_signal<bool> prescaler_fifo;
+
 private:
     int m_icconf = 0;
 
-
-    Prescaler m_prescaler;
     EdgeDetector m_detector;
-    //FIFO m_fifo;
+    Prescaler m_prescaler;
+
+    CaptureTimerSettings m_timer_mode = CaptureTimerSettingsDisabled;
+    FIFO<16> m_fifo;
 
     void bus_read();
     void bus_write();
-
+    void capture();
 };
 

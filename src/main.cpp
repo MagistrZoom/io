@@ -41,7 +41,7 @@ int sc_main(int argc, char * argv[])
     bus.rd_timer2_o(rd_timer2);
     bus.rd_ic_o(rd_ic);
 
-    sc_signal<int> timer1_data;
+    sc_signal<uint16_t> timer1_data;
     Timer timer1("timer1", 0);
     timer1.clk_i(clk);
     timer1.addr_bi(addr);
@@ -50,7 +50,7 @@ int sc_main(int argc, char * argv[])
     timer1.wr_i(wr_timer1);
     timer1.rd_i(rd_timer1);
 
-    sc_signal<int> timer2_data;
+    sc_signal<uint16_t> timer2_data;
     Timer timer2("timer2", 0);
     timer2.clk_i(clk);
     timer2.addr_bi(addr);
@@ -60,23 +60,35 @@ int sc_main(int argc, char * argv[])
     timer2.rd_i(rd_timer2);
 
     sc_clock signal("signal", sc_time(180, SC_NS), 0.33);
-    sc_signal<bool> data_o;
+
     InputCapture capture("InputCapture");
     capture.data_i(signal);
-    capture.data_o(data_o);
     capture.clk_i(clk);
     capture.addr_bi(addr);
     capture.data_bi(data_mips32_bo);
     capture.data_bo(data_mips32_bi);
+    capture.timer1_bi(timer1_data);
+    capture.timer2_bi(timer2_data);
     capture.wr_i(wr_ic);
     capture.rd_i(rd_ic);
 
     sc_trace_file * wf = sc_create_vcd_trace_file("wave");
     wf->set_time_unit(100, SC_PS);
     sc_trace(wf, clk, "clk");
-    sc_trace(wf, capture.prescaler_detector, "prescaler");
-    sc_trace(wf, data_o, "edge");
     sc_trace(wf, signal, "signal");
+    sc_trace(wf, capture.detector_prescaler, "detector");
+    sc_trace(wf, capture.prescaler_fifo, "prescaler");
+
+    sc_trace(wf, wr_timer1, "wr_timer1");
+    sc_trace(wf, wr_timer2, "wr_timer2");
+    sc_trace(wf, wr_ic, "wr_ic");
+    sc_trace(wf, rd_timer1, "rd_timer1");
+    sc_trace(wf, rd_timer2, "rd_timer2");
+    sc_trace(wf, rd_ic, "rd_ic");
+
+    sc_trace(wf, data_mips32_bo, "mips_data_bo");
+    sc_trace(wf, data_mips32_bi, "mips_data_bi");
+    sc_trace(wf, addr, "mips_addr_bo");
     sc_start();
 
     sc_close_vcd_trace_file(wf);

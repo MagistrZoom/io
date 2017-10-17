@@ -1,5 +1,7 @@
+#include <stdlib.h>
 #include "mips32.h"
 #include "InputCapture.h"
+#include "timer.h"
 
 
 using namespace std;
@@ -20,28 +22,74 @@ MIPS32::MIPS32(sc_module_name nm)
     rd_o.initialize(0);
 
     SC_CTHREAD(mainThread, clk_i.pos());
-
-    SC_METHOD(timer);
-    sensitive << clk_i.pos();
-}
-
-
-MIPS32::~MIPS32()
-{
-
 }
 
 
 void MIPS32::mainThread()
 {
-    bus_write(0x18, CaptureSettingsStoreAtForthRisingFront);
+    int impulse_posedge = 0;
+    int impulse_negedge = 0;
+    int signal_period_end = 0;
+
+    static int c = 0;
+    int read_n = 0;
+    while (true) {
+        switch (m_state) {
+            case 0: // init
+                bus_write(0x0, (uint16_t) ~0);
+                bus_write(0x8, Timer::TimerInc);
+                bus_write(0x18, CaptureSettingsStoreAtAnyFront | CaptureTimerSettingsTimerOne);
+                m_state = 1;
+                break;
+            case 1: // check for ICBNE
+            {
+                int icconf = bus_read(0x18);
+                if (icconf & CaptureFieldsBufferNonEmpty) {
+                    switch (read_n) {
+                        case 0:
+                            m_state = 2;
+                            break;
+                        case 1:
+                            m_state = 3;
+                            break;
+                        case 2:
+                            m_state = 4;
+                            break;
+                    }
+                }
+            }
+                break;
+            case 2: // read impulse posedge
+                impulse_posedge = bus_read(0x1C);
+                m_state = 1;
+                read_n = 1;
+            break;
+            case 3: // imp negedge
+                impulse_negedge = bus_read(0x1C);
+                m_state = 1;
+                read_n = 2;
+                break;
+            case 4: // signal end
+                signal_period_end = bus_read(0x1C);
+                m_state = 1;
+                read_n = 0;
+                std::cout << "[" << sc_time_stamp() << "] duty rate: "
+                          << (float)(impulse_negedge - impulse_posedge) / (signal_period_end - impulse_posedge) << '\n';
+                break;
+        }
+
+        if (c++ == 10) {
+            sc_stop();
+        }
+        wait();
+    }
 }
 
 
-void MIPS32::timer()
+void MIPS32::shutdown()
 {
     static int i = 0;
-    if (i++ == 500000) {
+    if (i++ == 50000) {
         sc_stop();
     }
 }
@@ -63,7 +111,7 @@ int MIPS32::bus_read(int addr)
 
     cout << "MIPS32: READ " << endl;
     cout << "  -> addr: " << hex << addr << endl;
-    cout << "  -> data: " << hex << data << endl;
+    cout << "  -> data: " << std::dec << data << endl;
 
     return data;
 

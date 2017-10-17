@@ -9,7 +9,7 @@
 #include "IDataFlowBlock.h"
 
 
-SC_MODULE(EdgeDetector), IDataFlowBlock
+SC_MODULE(EdgeDetector), public IDataFlowBlock
 {
     sc_in<bool> clk_i;
     sc_in<bool> data_i;
@@ -30,8 +30,9 @@ SC_MODULE(EdgeDetector), IDataFlowBlock
 
     void set_front(CaptureSettings front);
 private:
-    CaptureSettings m_front = CaptureSettingsStoreAtRisingFront;
     bool m_disabled = true;
+    bool m_before = false;
+    CaptureSettings m_front = CaptureSettingsStoreAtRisingFront;
 
     IDataFlowBlock * m_prev = nullptr;
 

@@ -2,6 +2,7 @@
 // Created by izoomko on 10/3/17.
 //
 
+#include <stdlib.h>
 #include "EdgeDetector.h"
 
 
@@ -12,7 +13,7 @@ EdgeDetector::EdgeDetector(sc_module_name nm)
       data_o("data_o")
 {
     SC_METHOD(process);
-    sensitive << clk_i.pos() << data_i.pos() << data_i.neg();
+    sensitive << clk_i.pos();
 }
 
 
@@ -24,23 +25,30 @@ void EdgeDetector::process()
 
     if (data_o.read()) {
         data_o.write(false);
-        return;
     }
 
-    if ((data_i.posedge() || data_i.negedge()) && m_front == CaptureSettingsStoreAtAnyFront) {
-        data_o.write(true);
-        return;
+    const bool current = data_i.read();
+    bool capture_negedge = false;
+    bool capture_posedge = false;
+    switch (m_front) {
+        case CaptureSettingsStoreAtAnyFront:
+            capture_posedge = capture_negedge = true;
+            break;
+        case CaptureSettingsStoreAtFadingFront:
+            capture_negedge = true;
+            break;
+        case CaptureSettingsStoreAtRisingFront:
+            capture_posedge = true;
+            break;
+        default:
+            abort();
+            break;
     }
-
-    if (data_i.posedge() && m_front == CaptureSettingsStoreAtRisingFront) {
+    if ((capture_negedge && !current && m_before)
+        || (capture_posedge && current && !m_before)) {
         data_o.write(true);
-        return;
     }
-
-    if (data_i.negedge() && m_front == CaptureSettingsStoreAtFadingFront) {
-        data_o.write(true);
-        return;
-    }
+    m_before = current;
 }
 
 
@@ -53,6 +61,7 @@ void EdgeDetector::set_source(IDataFlowBlock * block)
 void EdgeDetector::reset()
 {
     m_disabled = true;
+    m_before = false;
     m_front = CaptureSettingsStoreAtRisingFront;
 }
 

@@ -16,15 +16,16 @@ SC_MODULE(MIPS32)
     SC_HAS_PROCESS(MIPS32);
 
     MIPS32(sc_module_name nm);
-    ~MIPS32();
+    ~MIPS32() = default;
 
     void mainThread();
 private:
+    int m_state = 0;
 
     void bus_write(int addr, int data);
     int bus_read(int addr);
 
-    void timer();
+    void shutdown();
 };
 
 #endif

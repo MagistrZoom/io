@@ -2,6 +2,7 @@
 // Created by izoomko on 10/2/17.
 //
 
+#include <stdlib.h>
 #include "timer.h"
 
 
@@ -18,7 +19,7 @@ Timer::Timer(sc_module_name nm, int offset)
     data_bo.initialize(0);
 
     SC_METHOD(bus_read);
-    sensitive << clk_i.pos() << wr_i.pos();
+    sensitive << clk_i.pos();
 
     SC_METHOD(tick);
     sensitive << clk_i.pos();
@@ -59,18 +60,21 @@ void Timer::bus_read()
     }
 
     int data = data_bi.read();
-    // Align timer address on 0x0
+    // Align shutdown address on 0x0
     int addr = addr_bi.read() - m_offset;
 
     switch (addr) {
         case 0x0:
-            m_tmr = data;
+            m_tmr = (uint16_t) data;
             break;
         case 0x4:
-            m_tval = data;
+            m_tval = (uint16_t) data;
             break;
         case 0x8:
             m_tconf = data;
+            break;
+        default:
+            abort();
             break;
     }
 }

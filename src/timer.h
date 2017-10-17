@@ -19,7 +19,7 @@ SC_MODULE(Timer)
     sc_in<int> data_bi;
     sc_in<bool> wr_i;
     sc_in<bool> rd_i;
-    sc_out<int> data_bo;
+    sc_out<uint16_t> data_bo;
 
     SC_HAS_PROCESS(Timer);
 
@@ -28,8 +28,8 @@ SC_MODULE(Timer)
     ~Timer() = default;
 private:
     int m_offset = 0;
-    int m_tmr = 0;
-    int m_tval = 0;
+    uint16_t m_tmr = 0;
+    uint16_t m_tval = 0;
     int m_tconf = TimerStopped;
 
     void bus_read();

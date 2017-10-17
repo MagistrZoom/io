@@ -32,7 +32,7 @@ BusMatrix::BusMatrix(sc_module_name nm)
     m_list.emplace_back(rd_ic_o);
 
     SC_METHOD(select);
-    sensitive << clk_i.pos() << wr_i.pos() << rd_i.pos();
+    sensitive << clk_i.pos();
 }
 
 
@@ -64,6 +64,8 @@ void BusMatrix::set(int device, bool read, bool write)
 {
     device *= 2;
     for (size_t i = 0; i < m_list.size(); i++) {
-        m_list[i].get().write((i == device && write) || (i + 1 == device && read));
+        m_list[i].get().write(false);
     }
+    m_list[device].get().write(write);
+    m_list[device + 1].get().write(read);
 }

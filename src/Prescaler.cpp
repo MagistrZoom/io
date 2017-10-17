@@ -12,7 +12,7 @@ Prescaler::Prescaler(sc_module_name nm)
       data_o("data_o")
 {
     SC_METHOD(process);
-    sensitive << clk_i.pos() << data_i.pos();
+    sensitive << clk_i.pos();
 }
 
 
@@ -24,29 +24,14 @@ void Prescaler::process()
 
     assert(m_ratio != 0);
 
-    if (data_i.posedge()) {
-        if (++m_impulse == m_ratio) {
-            data_o.write(true);
-            m_impulse = 0;
-            m_delay = m_clock;
-            m_clock = 0;
-        }
-        else {
-            return;
-        }
-    }
-
-    if (data_i.read()) {
-        m_clock++;
-    }
-
-    if (m_delay != 0) {
-        m_delay--;
-    }
-    else {
+    if (data_o.read()) {
         data_o.write(false);
     }
 
+    if (data_i.read() && ++m_impulses == m_ratio) {
+        data_o.write(true);
+        m_impulses = 0;
+    }
 }
 
 void Prescaler::set_source(IDataFlowBlock * block)
@@ -58,9 +43,8 @@ void Prescaler::set_source(IDataFlowBlock * block)
 void Prescaler::reset()
 {
     m_disabled = true;
-    m_impulse = 0;
-    m_ratio = 0;
-    m_clock = 0;
+    m_ratio = 1;
+    m_impulses = 0;
 }
 
 
