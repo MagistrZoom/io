@@ -34,7 +34,7 @@ void MIPS32::mainThread()
     // static int c = 0;
     int read_n = 0;
     bool first_run = true;
-    double duty_rate = 0;
+    double duty_cycle = 0;
     while (true) {
         switch (m_state) {
             case 0: // init
@@ -79,22 +79,23 @@ void MIPS32::mainThread()
                 m_state = 1;
                 read_n = 2;
                 break;
-            case 4: // signal end
+            case 4: { // signal end
                 signal_period_end = bus_read(0x1C);
                 m_state = 1;
                 read_n = 0;
                 constexpr double epsilon = 10e-5;
-                double value = (double) (impulse_negedge - impulse_posedge) / (signal_period_end - impulse_posedge);
-                if (std::abs(value - duty_rate) > epsilon) {
-                    duty_rate = value;
-                    std::cout << "[" << sc_time_stamp() << "] duty rate: "
-                              << duty_rate << '\n';
+                double value = (double) (signal_period_end - impulse_posedge) / (impulse_negedge - impulse_posedge);
+                if (std::abs(value - duty_cycle) > epsilon) {
+                    duty_cycle = value;
+                    std::cout << "[" << sc_time_stamp() << "] duty cycle: "
+                              << duty_cycle << '\n';
                 }
                 if (value < 0) {
                     std::cout << "ERROR: Timer overflow probably\n";
                     sc_stop();
                     return;
                 }
+            }
                 break;
         }
 
