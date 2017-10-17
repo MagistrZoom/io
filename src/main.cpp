@@ -2,6 +2,7 @@
 #include "Timer.h"
 #include "BusMatrix.h"
 #include "InputCapture.h"
+#include "Signal.h"
 
 
 int sc_main(int argc, char * argv[])
@@ -59,7 +60,15 @@ int sc_main(int argc, char * argv[])
     timer2.wr_i(wr_timer2);
     timer2.rd_i(rd_timer2);
 
-    sc_clock signal("signal", sc_time(1600, SC_NS), 0.33);
+    if (argc < 4) {
+        abort();
+    }
+    sc_signal<bool> signal;
+    double duty_cycle = std::stod(argv[1]);
+    double second_duty_cycle = std::stod(argv[2]);
+    double second_start = std::stod(argv[3]);
+    Signal signal_block("TestSignalBlock", duty_cycle, second_duty_cycle, second_start);
+    signal_block.data_o(signal);
 
     InputCapture capture("InputCapture");
     capture.data_i(signal);
