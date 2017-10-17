@@ -3,7 +3,7 @@
 //
 
 #include <stdlib.h>
-#include "timer.h"
+#include "Timer.h"
 
 
 Timer::Timer(sc_module_name nm, int offset)

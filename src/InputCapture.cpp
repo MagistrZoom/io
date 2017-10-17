@@ -93,7 +93,7 @@ void InputCapture::bus_read()
                     m_timer_mode = CaptureTimerSettingsTimerOne;
                     break;
                 case CaptureTimerSettingsTimerTwo:
-                    m_timer_mode= CaptureTimerSettingsTimerTwo;
+                    m_timer_mode = CaptureTimerSettingsTimerTwo;
                     break;
                 case CaptureTimerSettingsBoth:
                     m_timer_mode = CaptureTimerSettingsBoth;
@@ -106,7 +106,8 @@ void InputCapture::bus_read()
                 m_prescaler.set_ratio(ratio);
                 m_fifo.enable_chain();
             }
-        } break;
+        }
+            break;
     }
 }
 
@@ -127,15 +128,18 @@ void InputCapture::bus_write()
     switch (addr) {
         case 0x18:
             // set ICBNE
-            m_icconf = (m_icconf & ~CaptureFieldsBufferNonEmpty) | ((!m_fifo.is_empty()?~0:0) & CaptureFieldsBufferNonEmpty);
+            m_icconf = (m_icconf & ~CaptureFieldsBufferNonEmpty)
+                | ((!m_fifo.is_empty() ? ~0 : 0) & CaptureFieldsBufferNonEmpty);
             // set ICOV
-            m_icconf = (m_icconf & ~CaptureFieldsBufferOverflow) | ((!m_fifo.is_full()?~0:0) & CaptureFieldsBufferOverflow);
+            m_icconf =
+                (m_icconf & ~CaptureFieldsBufferOverflow) | ((m_fifo.is_full() ? ~0 : 0) & CaptureFieldsBufferOverflow);
             data_bo.write(m_icconf);
             break;
         case 0x1C: {
             const auto top = m_fifo.pop();
             data_bo.write(top);
-        } break;
+        }
+            break;
         default:
             abort();
             break;

@@ -34,6 +34,7 @@ void Prescaler::process()
     }
 }
 
+
 void Prescaler::set_source(IDataFlowBlock * block)
 {
     m_prev = block;

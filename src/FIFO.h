@@ -64,9 +64,6 @@ struct FIFO
             return;
         }
 
-        std::cout << sc_time_stamp() << " : Store m_fifo[" << m_size << "] = "
-                  << std::dec << value << std::hex
-                  << std::endl;
         m_fifo[m_size++] = value;
     }
 

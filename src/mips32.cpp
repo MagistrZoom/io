@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include "mips32.h"
 #include "InputCapture.h"
-#include "timer.h"
+#include "Timer.h"
 
 
 using namespace std;
@@ -31,8 +31,10 @@ void MIPS32::mainThread()
     int impulse_negedge = 0;
     int signal_period_end = 0;
 
-    static int c = 0;
+    // static int c = 0;
     int read_n = 0;
+    bool first_run = true;
+    double duty_rate = 0;
     while (true) {
         switch (m_state) {
             case 0: // init
@@ -57,13 +59,17 @@ void MIPS32::mainThread()
                             break;
                     }
                 }
+                if (icconf & CaptureFieldsBufferOverflow) {
+                    abort();
+                }
             }
                 break;
             case 2: // read impulse posedge
-                impulse_posedge = bus_read(0x1C);
+                impulse_posedge = first_run ? bus_read(0x1C) : signal_period_end;
+                first_run = false;
                 m_state = 1;
                 read_n = 1;
-            break;
+                break;
             case 3: // imp negedge
                 impulse_negedge = bus_read(0x1C);
                 m_state = 1;
@@ -73,32 +79,31 @@ void MIPS32::mainThread()
                 signal_period_end = bus_read(0x1C);
                 m_state = 1;
                 read_n = 0;
-                std::cout << "[" << sc_time_stamp() << "] duty rate: "
-                          << (float)(impulse_negedge - impulse_posedge) / (signal_period_end - impulse_posedge) << '\n';
+                constexpr double epsilon = 10e-5;
+                double value = (double) (impulse_negedge - impulse_posedge) / (signal_period_end - impulse_posedge);
+                if (std::abs(value - duty_rate) > epsilon) {
+                    duty_rate = value;
+                    std::cout << "[" << sc_time_stamp() << "] duty rate: "
+                              << duty_rate << '\n';
+                }
+                if (value < 0) {
+                    std::cout << "ERROR: Timer overflow probably\n";
+                    sc_stop();
+                    return;
+                }
                 break;
         }
 
-        if (c++ == 50) {
-            sc_stop();
-        }
+        // if (c++ == 50) {
+        //     sc_stop();
+        // }
         wait();
-    }
-}
-
-
-void MIPS32::shutdown()
-{
-    static int i = 0;
-    if (i++ == 50000) {
-        sc_stop();
     }
 }
 
 
 int MIPS32::bus_read(int addr)
 {
-    int data;
-
     wait();
     addr_bo.write(addr);
     rd_o.write(1);
@@ -107,14 +112,9 @@ int MIPS32::bus_read(int addr)
     rd_o.write(0);
 
     wait();
-    data = data_bi.read();
-
-    cout << "MIPS32: READ " << endl;
-    cout << "  -> addr: " << hex << addr << endl;
-    cout << "  -> data: " << std::dec << data << endl;
+    int data = data_bi.read();
 
     return data;
-
 }
 
 
@@ -127,9 +127,4 @@ void MIPS32::bus_write(int addr, int data)
 
     wait();
     wr_o.write(0);
-
-    cout << "MIPS32: WRITE " << endl;
-    cout << "  -> addr: " << hex << addr << endl;
-    cout << "  -> data: " << hex << data << endl;
-
 }

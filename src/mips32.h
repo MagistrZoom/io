@@ -24,8 +24,6 @@ private:
 
     void bus_write(int addr, int data);
     int bus_read(int addr);
-
-    void shutdown();
 };
 
 #endif
