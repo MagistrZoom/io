@@ -44,10 +44,11 @@ void EdgeDetector::process()
             abort();
             break;
     }
-    if ((capture_negedge && !current && m_before)
-        || (capture_posedge && current && !m_before)) {
+    if (((capture_negedge && !current && m_before)
+        || (capture_posedge && current && !m_before)) && !m_first_run) {
         data_o.write(true);
     }
+    m_first_run = false;
     m_before = current;
 }
 

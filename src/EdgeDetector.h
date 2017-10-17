@@ -32,6 +32,7 @@ SC_MODULE(EdgeDetector), public IDataFlowBlock
 private:
     bool m_disabled = true;
     bool m_before = false;
+    bool m_first_run = true;
     CaptureSettings m_front = CaptureSettingsStoreAtRisingFront;
 
     IDataFlowBlock * m_prev = nullptr;

@@ -65,7 +65,11 @@ void MIPS32::mainThread()
             }
                 break;
             case 2: // read impulse posedge
-                impulse_posedge = first_run ? bus_read(0x1C) : signal_period_end;
+                if (first_run) {
+                    m_state = 2;
+                    read_n = 3;
+                }
+                impulse_posedge = signal_period_end;
                 first_run = false;
                 m_state = 1;
                 read_n = 1;

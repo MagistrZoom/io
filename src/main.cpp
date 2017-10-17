@@ -59,7 +59,7 @@ int sc_main(int argc, char * argv[])
     timer2.wr_i(wr_timer2);
     timer2.rd_i(rd_timer2);
 
-    sc_clock signal("signal", sc_time(1600, SC_NS), 0.20);
+    sc_clock signal("signal", sc_time(1600, SC_NS), 0.33);
 
     InputCapture capture("InputCapture");
     capture.data_i(signal);
