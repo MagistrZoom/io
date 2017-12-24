@@ -5,6 +5,7 @@
 
 #include "systemc.h"
 
+typedef unsigned short uint16_t;
 
 SC_MODULE(Timer)
 {
@@ -15,24 +16,29 @@ SC_MODULE(Timer)
     };
 
     sc_in<bool> clk_i;
-    sc_in<int> addr_bi;
+    sc_in<bool> rst_i;
+    sc_in<bool> en_i;
+    sc_in<sc_bv<13> > addr_bi;
     sc_in<int> data_bi;
-    sc_in<bool> wr_i;
-    sc_in<bool> rd_i;
+    sc_in<sc_bv<4> > we_bi;
     sc_out<uint16_t> data_bo;
 
-    SC_HAS_PROCESS(Timer);
-
-    Timer(sc_module_name nm, int offset);
-
-    ~Timer() = default;
+    SC_CTOR(Timer);
 private:
-    int m_offset = 0;
-    uint16_t m_tmr = 0;
-    uint16_t m_tval = 0;
-    int m_tconf = TimerStopped;
+    sc_signal<uint16_t> m_tmr;
+    sc_signal<uint16_t> m_tval;
+    sc_signal<int> m_tconf;
 
-    void bus_read();
+    sc_signal<uint16_t> m_next_tmr;
+    sc_signal<uint16_t> m_next_tval;
+    sc_signal<int> m_next_tconf;
 
-    void tick();
+    sc_signal<int> m_next_out;
+
+    sc_signal<bool> m_poke_timer_prev;
+    sc_signal<bool> m_poke_timer_next;
+    sc_signal<bool> m_poke_timer;
+
+    void on_clock();
+    void timer();
 };
