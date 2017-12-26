@@ -25,20 +25,9 @@ SC_MODULE(Timer)
 
     SC_CTOR(Timer);
 private:
-    sc_signal<uint16_t> m_tmr;
-    sc_signal<uint16_t> m_tval;
-    sc_signal<int> m_tconf;
-
-    sc_signal<uint16_t> m_next_tmr;
-    sc_signal<uint16_t> m_next_tval;
-    sc_signal<int> m_next_tconf;
-
-    sc_signal<int> m_next_out;
-
-    sc_signal<bool> m_poke_timer_prev;
-    sc_signal<bool> m_poke_timer_next;
-    sc_signal<bool> m_poke_timer;
+    sc_uint<32> m_tmr;
+    sc_uint<32> m_tval;
+    sc_uint<32> m_tconf;
 
     void on_clock();
-    void timer();
 };
